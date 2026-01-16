@@ -1,8 +1,2 @@
-# TK-22
-
-## Purpose
-
-- **main**: locked and production-safe — only stable, reviewed changes are merged here.
-- **dev**: experiments and active work happen here; agents and contributors may iterate freely.
-- **Workflow**: all changes flow through pull requests (create PR from `dev` → `main`, review, then merge).
-
+# tk-22
+TK-22 — Crystal Clear House Locked-core automation repo. main is stable and production-safe; dev is for agents, experiments, and controlled chaos. Only reviewed merges move upstream.
