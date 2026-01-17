@@ -1,0 +1,18 @@
+name: TK-22 Control Execute
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [tk22_execute]
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: python control/runtime/tk22_execute.py
