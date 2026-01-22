@@ -1,0 +1,32 @@
+name: TK22 PR Guardian
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  notify-n8n:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send PR event to n8n
+        env:
+          N8N_WEBHOOK_URL: ${{ secrets.N8N_TK22_PR_WEBHOOK }}
+        run: |
+          if [ -z "$N8N_WEBHOOK_URL" ]; then
+            echo "❌ Missing N8N webhook URL"
+            exit 1
+          fi
+
+          curl -X POST "$N8N_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "event": "pull_request",
+              "repo": "${{ github.repository }}",
+              "pr_number": "${{ github.event.pull_request.number }}",
+              "branch": "${{ github.event.pull_request.head.ref }}",
+              "commit": "${{ github.event.pull_request.head.sha }}",
+              "author": "${{ github.event.pull_request.user.login }}",
+              "timestamp": "${{ github.event.pull_request.updated_at }}"
+            }'
