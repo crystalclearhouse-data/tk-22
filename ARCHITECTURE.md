@@ -215,3 +215,16 @@ Judgment is allowed only at the core.
 This is how you build trust.
 This is how you prevent silent failure.
 This is how you ship something people will pay for.
+
+---
+
+### Antigravity Integration
+
+Antigravity may receive observational signals from TK22 pipelines.
+
+Antigravity is not permitted to:
+- Produce verdicts
+- Modify TK22 outcomes
+- Override FAIL states
+
+Antigravity exists to route attention, not authority.
