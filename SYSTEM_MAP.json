@@ -1,0 +1,38 @@
+{
+    "dispatch_to_n8n": {
+        "type": "code",
+        "path": "marketing-cognition-system/src/lib/dispatchToN8N.ts",
+        "contract": "Fire-and-forget relay to n8n webhook",
+        "authority": "emit_signal_only"
+    },
+    "scan_api_route": {
+        "type": "api",
+        "path": "marketing-cognition-system/src/app/api/scan/route.ts",
+        "contract": "Compute verdict, return response, emit signal",
+        "authority": "decide_and_emit"
+    },
+    "n8n_signal_workflow": {
+        "type": "workflow",
+        "path": "marketing-cognition-system/workflows/signal_intake.json",
+        "contract": "Webhook intake, audit log, conditional escalation",
+        "authority": "orchestrate_only"
+    },
+    "env_config": {
+        "type": "config",
+        "path": "marketing-cognition-system/.env.local",
+        "contract": "Runtime secrets",
+        "authority": "read_only"
+    },
+    "system_voice": {
+        "type": "output",
+        "path": "n8n:first_node",
+        "contract": "Minimal state narration",
+        "authority": "speak_when_required"
+    },
+    "lock_in_protocol": {
+        "type": "agent_rule",
+        "path": ".agent/LOCK_IN_MODE.md",
+        "contract": "Deterministic execution during canonical commits",
+        "authority": "override_all_fallbacks"
+    }
+}

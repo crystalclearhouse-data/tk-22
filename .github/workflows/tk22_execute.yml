@@ -15,4 +15,11 @@ jobs:
         with:
           python-version: '3.11'
 
-      - run: python control/runtime/tk22_execute.py
+      - name: Run TK-22
+        run: python3 control/runtime/tk22_execute.py
+
+      - name: Upload proofs
+        uses: actions/upload-artifact@v4
+        with:
+          name: tk22-proofs
+          path: control/proofs/

@@ -1,0 +1,31 @@
+{
+  "timestamp": "20260122T175527Z",
+  "status": "PASS",
+  "exit_code": 0,
+  "checks": [
+    {
+      "id": "control",
+      "status": "PASS"
+    },
+    {
+      "id": "control/memory",
+      "status": "PASS"
+    },
+    {
+      "id": "control/proofs",
+      "status": "PASS"
+    },
+    {
+      "id": "control/runtime",
+      "status": "PASS"
+    },
+    {
+      "id": ".github/workflows",
+      "status": "PASS"
+    }
+  ],
+  "git": {
+    "branch": "dev",
+    "commit": "ebcb5175b1aae6d9e9c6249085616dfb8375fe4d"
+  }
+}

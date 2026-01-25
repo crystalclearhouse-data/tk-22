@@ -1,0 +1,29 @@
+### Get authorized user
+GET https://api.clickup.com/api/v2/user
+Authorization: {{CLICKUP_API_TOKEN}}
+
+###
+
+### Get spaces
+GET https://api.clickup.com/api/v2/team/{{CLICKUP_TEAM_ID}}/space
+Authorization: {{CLICKUP_API_TOKEN}}
+
+###
+
+### Get tasks in list
+GET https://api.clickup.com/api/v2/list/{{CLICKUP_LIST_ID}}/task
+Authorization: {{CLICKUP_API_TOKEN}}
+
+###
+
+### Create task (TK-22 Intake)
+POST https://api.clickup.com/api/v2/list/{{CLICKUP_LIST_ID}}/task
+Authorization: {{CLICKUP_API_TOKEN}}
+Content-Type: application/json
+
+{
+  "name": "TK-22 Scan Request",
+  "description": "Triggered from VS Code",
+  "tags": ["tk-22", "scan"],
+  "status": "to do"
+}
