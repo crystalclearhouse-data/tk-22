@@ -34,5 +34,11 @@
         "path": ".agent/LOCK_IN_MODE.md",
         "contract": "Deterministic execution during canonical commits",
         "authority": "override_all_fallbacks"
+    },
+    "cognitive_ops": {
+        "type": "authority",
+        "path": "docs/COGNITIVE_OPERATIONS.md",
+        "contract": "Autonomous loop principles and constraints",
+        "authority": "phase_3_canonical"
     }
 }
