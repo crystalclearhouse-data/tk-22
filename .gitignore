@@ -10,9 +10,10 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Dependency directories
-.bower_components/
+bower_components/
 
 # Build and generated files
+dist/
 .next/
 out/
 
@@ -24,6 +25,7 @@ coverage/
 
 # Env files
 .env
+.env.*
 .env.local
 .env.*.local
 
