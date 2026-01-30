@@ -32,10 +32,7 @@ The repository includes pre-configured Copilot settings in `.vscode/settings.jso
 ```json
 {
   "github.copilot.enable": {
-    "*": true,
-    "yaml": true,
-    "plaintext": true,
-    "markdown": true
+    "*": true
   },
   "github.copilot.editor.enableAutoCompletions": true,
   "github.copilot.chat.useProjectTemplates": true
