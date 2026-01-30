@@ -8,15 +8,19 @@ TK-22 is a deterministic safety and verdict engine designed to evaluate the safe
 
 ## Architecture
 
-The project follows a strict layer model (see [ARCHITECTURE.md](ARCHITECTURE.md) for details):
+The project follows a strict layer model (see [ARCHITECTURE.md](ARCHITECTURE.md) for complete details):
 
 - **Core Layer** (`src/tk22/core/`) - The only decision-making layer with deterministic policy evaluation
 - **Adapters Layer** (`src/tk22/adapters/`) - External data acquisition from APIs and blockchain
+- **Models Layer** (`src/tk22/models/`) - Type definitions and structural validation
 - **Services Layer** (`src/tk22/services/`) - Orchestration and data flow
+- **Agent Layer** (`src/tk22/agent/`) - Task automation and coordination
 - **APIs Layer** (`src/tk22/apis/`) - HTTP/RPC interfaces
-- **Agent Layer** (`src/tk22/agent/`) - Task automation
-- **Gen Layer** (`src/tk22/gen/`) - Human-facing explanations
-- **Control Layer** (`control/`) - Runtime execution and proof generation
+- **Gen Layer** (`src/tk22/gen/`) - Human-facing explanations and narrative
+- **Utils Layer** (`src/tk22/utils/`) - Pure helper functions
+
+Additional components:
+- **Control Layer** (`control/`) - Python runtime execution and proof generation (separate from core architecture)
 
 ## Project Structure
 
