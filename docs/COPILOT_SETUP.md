@@ -74,7 +74,7 @@ With the current configuration:
 
 ### For TK-22 Development
 
-1. **Architecture Compliance**: When asking Copilot to generate code, reference the `ARCHITECTURE.md` to ensure compliance with the fail-closed design.
+1. **Architecture Compliance**: When asking Copilot to generate code, reference the [`../ARCHITECTURE.md`](../ARCHITECTURE.md) to ensure compliance with the fail-closed design.
 
 2. **Layer-Specific Development**: Mention which layer you're working in:
    - "Generate a Core verdict function"
@@ -122,12 +122,12 @@ With the current configuration:
 
 - [GitHub Copilot Documentation](https://docs.github.com/en/copilot)
 - [VS Code Copilot Guide](https://code.visualstudio.com/docs/editor/artificial-intelligence)
-- TK-22 Architecture: See `ARCHITECTURE.md`
-- Repository Contract: See `REPO_CONTRACT.md`
+- TK-22 Architecture: See [`../ARCHITECTURE.md`](../ARCHITECTURE.md)
+- Repository Contract: See [`../REPO_CONTRACT.md`](../REPO_CONTRACT.md)
 
 ## Support
 
 For issues with:
 - **Copilot itself**: Contact GitHub Support
 - **TK-22 configuration**: Open an issue in this repository
-- **Architecture questions**: Reference `ARCHITECTURE.md` or ask in team channels
+- **Architecture questions**: Reference [`../ARCHITECTURE.md`](../ARCHITECTURE.md) or ask in team channels
