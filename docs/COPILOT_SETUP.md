@@ -74,7 +74,7 @@ With the current configuration:
 
 ### For TK-22 Development
 
-1. **Architecture Compliance**: When asking Copilot to generate code, reference the [`../ARCHITECTURE.md`](../ARCHITECTURE.md) to ensure compliance with the fail-closed design.
+1. **Architecture Compliance**: When asking Copilot to generate code, mention the fail-closed design principles from [`../ARCHITECTURE.md`](../ARCHITECTURE.md) to ensure compliance. For example: "Generate a Core verdict function following the fail-closed design pattern."
 
 2. **Layer-Specific Development**: Mention which layer you're working in:
    - "Generate a Core verdict function"
