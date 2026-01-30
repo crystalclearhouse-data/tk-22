@@ -4,3 +4,7 @@
 .env.*
 node_modules/
 dist/
+
+# Runtime artifacts
+control/memory/
+control/proofs/
