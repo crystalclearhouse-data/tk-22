@@ -1,0 +1,16 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "🧱 Repo Split — Phase 1 (Dry Run)",
+      "type": "shell",
+      "command": "bash scripts/prepare-repo-split-dry-run.sh",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      }
+    }
+  ]
+}

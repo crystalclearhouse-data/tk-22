@@ -1,6 +1,11 @@
 .DS_Store
-.vscode/
+.vscode/*
+!.vscode/tasks.json
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/extensions.json
 .env
 .env.*
 node_modules/
 dist/
+reports/repo-split-dry-run.md
