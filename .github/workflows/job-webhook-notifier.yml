@@ -1,0 +1,138 @@
+name: Job Webhook Notifier
+
+# Trigger on all workflow runs to capture job events
+on:
+  workflow_run:
+    workflows: ["*"]
+    types:
+      - completed
+      - requested
+      - in_progress
+
+jobs:
+  notify-job-events:
+    name: Send Job Events to n8n
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    
+    steps:
+      - name: Check webhook configuration
+        id: check_webhook
+        run: |
+          if [ -z "${{ secrets.N8N_JOB_WEBHOOK }}" ]; then
+            echo "N8N_JOB_WEBHOOK secret not configured - skipping notification"
+            echo "webhook_configured=false" >> $GITHUB_OUTPUT
+          else
+            echo "Webhook configured - will send notification"
+            echo "webhook_configured=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Fetch and send job details
+        if: steps.check_webhook.outputs.webhook_configured == 'true'
+        uses: actions/github-script@v7
+        env:
+          N8N_WEBHOOK_URL: ${{ secrets.N8N_JOB_WEBHOOK }}
+        with:
+          script: |
+            // Log the workflow run event details
+            console.log('Workflow run event:', {
+              workflow: context.payload.workflow_run.name,
+              status: context.payload.workflow_run.status,
+              conclusion: context.payload.workflow_run.conclusion,
+              event: context.payload.workflow_run.event
+            });
+
+            // Get the workflow run ID
+            const runId = context.payload.workflow_run.id;
+            
+            try {
+              // Fetch jobs for this workflow run using GitHub API
+              const { data: jobs } = await github.rest.actions.listJobsForWorkflowRun({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: runId,
+              });
+
+              console.log(`Found ${jobs.total_count} job(s) for workflow run ${runId}`);
+
+              // Process each job and send to n8n webhook
+              for (const job of jobs.jobs) {
+                const payload = {
+                  // Job identification
+                  job_id: job.id,
+                  job_name: job.name,
+                  job_status: job.status,
+                  job_conclusion: job.conclusion,
+                  
+                  // Workflow information
+                  workflow_name: context.payload.workflow_run.name,
+                  workflow_path: context.payload.workflow_run.path,
+                  workflow_run_id: runId,
+                  workflow_run_number: context.payload.workflow_run.run_number,
+                  workflow_run_attempt: context.payload.workflow_run.run_attempt,
+                  
+                  // Repository context
+                  repository: context.payload.repository.full_name,
+                  repository_url: context.payload.repository.html_url,
+                  
+                  // Git information
+                  branch: context.payload.workflow_run.head_branch,
+                  commit_sha: context.payload.workflow_run.head_sha,
+                  commit_message: context.payload.workflow_run.head_commit.message,
+                  
+                  // Actor information
+                  actor: context.payload.workflow_run.actor.login,
+                  actor_url: context.payload.workflow_run.actor.html_url,
+                  
+                  // Timestamps
+                  started_at: job.started_at,
+                  completed_at: job.completed_at,
+                  workflow_created_at: context.payload.workflow_run.created_at,
+                  workflow_updated_at: context.payload.workflow_run.updated_at,
+                  
+                  // URLs
+                  job_url: job.html_url,
+                  workflow_run_url: context.payload.workflow_run.html_url,
+                  
+                  // Event metadata
+                  event_type: context.payload.workflow_run.event,
+                  trigger_actor: context.payload.sender.login
+                };
+
+                console.log('Sending job event to n8n:', JSON.stringify(payload, null, 2));
+
+                // Send to n8n webhook
+                const webhookUrl = process.env.N8N_WEBHOOK_URL;
+                
+                const response = await fetch(webhookUrl, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'GitHub-Actions-Webhook-Notifier'
+                  },
+                  body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                  console.log(`✓ Successfully sent job ${job.id} to n8n (${response.status})`);
+                } else {
+                  console.error(`✗ Failed to send job ${job.id} to n8n: ${response.status} ${response.statusText}`);
+                  const errorBody = await response.text();
+                  console.error('Error response:', errorBody);
+                }
+              }
+
+              console.log('Job webhook notification completed');
+            } catch (error) {
+              console.error('Error fetching/sending job details:', error.message);
+              console.error('Full error:', error);
+              // Don't fail the workflow, just log the error
+            }
+      
+      - name: Log skip message
+        if: steps.check_webhook.outputs.webhook_configured == 'false'
+        run: |
+          echo "Skipping webhook notification - N8N_JOB_WEBHOOK secret not configured"
+          echo "To enable notifications, add N8N_JOB_WEBHOOK to repository secrets"

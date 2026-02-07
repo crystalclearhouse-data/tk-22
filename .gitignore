@@ -1,6 +1,11 @@
 .DS_Store
-.vscode/
+.vscode/*.code-workspace
 .env
 .env.*
 node_modules/
 dist/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
