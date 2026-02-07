@@ -152,4 +152,4 @@ if __name__ == '__main__':
     app.logger.info("=" * 60)
     
     # Start Flask server
-    app.run(host='0.0.0.0', port=WEBHOOK_PORT, debug=True)
+    app.run(host='0.0.0.0', port=WEBHOOK_PORT, debug=False)
