@@ -1,5 +1,5 @@
 .DS_Store
-.vscode/
+.vscode/*.code-workspace
 .env
 .env.*
 node_modules/
