@@ -1,0 +1,179 @@
+{
+  "name": "GitHub Job Events Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "/webhook/github-jobs",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "github-jobs"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.job_status }}",
+              "operation": "equals",
+              "value2": "completed"
+            }
+          ]
+        }
+      },
+      "id": "filter-completed",
+      "name": "Filter Completed Jobs",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.job_conclusion }}",
+              "operation": "equals",
+              "value2": "failure"
+            }
+          ]
+        }
+      },
+      "id": "check-failure",
+      "name": "Check for Failure",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.DISCORD_WEBHOOK }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "🚨 **Job Failed in {{ $json.repository }}**"
+            },
+            {
+              "name": "embeds",
+              "value": "=[{\"title\": \"{{ $json.workflow_name }}\", \"description\": \"Job: {{ $json.job_name }}\\nStatus: {{ $json.job_conclusion }}\\nBranch: {{ $json.branch }}\\nCommit: {{ $json.commit_sha.substring(0, 7) }}\", \"color\": 15158332, \"fields\": [{\"name\": \"Actor\", \"value\": \"{{ $json.actor }}\", \"inline\": true}, {\"name\": \"Attempt\", \"value\": \"{{ $json.workflow_run_attempt }}\", \"inline\": true}], \"url\": \"{{ $json.job_url }}\", \"timestamp\": \"{{ $json.completed_at }}\"}]"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "discord-notify",
+      "name": "Discord Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [900, 100]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\"status\": \"success\", \"message\": \"Job event processed\", \"job_id\": $json.job_id} }}"
+      },
+      "id": "success-response",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\"status\": \"success\", \"message\": \"Job event received but not completed yet\", \"job_id\": $json.job_id, \"job_status\": $json.job_status} }}"
+      },
+      "id": "pending-response",
+      "name": "Pending Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [680, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\"status\": \"success\", \"message\": \"Job completed successfully\", \"job_id\": $json.job_id} }}"
+      },
+      "id": "success-no-notification",
+      "name": "Success No Notification",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Filter Completed Jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Completed Jobs": {
+      "main": [
+        [
+          {
+            "node": "Check for Failure",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pending Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Failure": {
+      "main": [
+        [
+          {
+            "node": "Discord Notification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Success No Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord Notification": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-02-07T04:00:00.000Z",
+  "versionId": "1"
+}
