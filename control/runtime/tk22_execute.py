@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 print("TK-22 EXECUTION STARTED")
@@ -12,7 +12,7 @@ PROOFS.mkdir(parents=True, exist_ok=True)
 MEMORY.mkdir(parents=True, exist_ok=True)
 
 proof = {
-    "timestamp": datetime.utcnow().isoformat(),
+    "timestamp": datetime.now(timezone.utc).isoformat(),
     "status": "EXECUTED",
     "message": "TK-22 control layer execution successful"
 }
