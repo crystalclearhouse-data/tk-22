@@ -1,7 +1,7 @@
 import { ChainFacts, VerdictResult } from "./types";
 import { POLICIES } from "./policies";
 
-export function evaluateToken(facts: ChainFacts): VerdictResult {
+export function evaluateVerdict(facts: ChainFacts): VerdictResult {
   const reasons: string[] = [];
 
   if (facts.mintAuthorityActive !== false) {
