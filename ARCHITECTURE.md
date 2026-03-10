@@ -1,6 +1,7 @@
 # TK22 Architecture Contract (Fail-Closed by Design)
 
 ## What TK22 Is
+
 TK22 is a **deterministic safety and verdict engine**.
 
 It exists to answer one question only:
@@ -20,6 +21,7 @@ There is only **PASS** or **FAIL**.
 **Only the Core layer may produce or influence a verdict.**
 
 All other layers:
+
 - supply data
 - move data
 - explain data
@@ -34,15 +36,18 @@ If this invariant is broken, TK22 is broken.
 ## Layer Model (Bottom → Top)
 
 ### 1. `core/` — Verdict Authority
+
 **The only decision-making layer.**
 
 Responsibilities:
+
 - Deterministic policy evaluation
 - Fail-closed verdict generation
 - Threshold enforcement
 - Explicit PASS / FAIL outcomes
 
 Rules:
+
 - No network calls
 - No adapters
 - No agents
@@ -56,13 +61,16 @@ If required inputs are missing → **FAIL**.
 ---
 
 ### 2. `adapters/` — External Data Boundary
+
 **Untrusted data acquisition.**
 
 Responsibilities:
+
 - Fetch data from external systems (Helius, RPCs, APIs)
 - Normalize raw responses into known shapes
 
 Rules:
+
 - NEVER decide
 - NEVER infer
 - NEVER default missing data to "safe"
@@ -74,32 +82,38 @@ Core is not.
 ---
 
 ### 3. `models/` — Structural Definitions
+
 **Data shape, not meaning.**
 
 Responsibilities:
+
 - Type definitions
 - Schemas
 - Structural validation
 
 Rules:
+
 - No business logic
 - No defaults that imply safety
 - No derived values that change meaning
 - Validation ≠ approval
 
-Models describe *form*, never *truth*.
+Models describe _form_, never _truth_.
 
 ---
 
 ### 4. `services/` — Wiring & Pipelines
+
 ⚠️ **High-risk layer — strictly constrained**
 
 Responsibilities:
+
 - Orchestrate data flow
 - Combine adapter outputs
 - Prepare inputs for Core
 
 Rules:
+
 - NO decisions
 - NO retries unless Core explicitly requests
 - NO conditional logic that alters outcomes
@@ -112,15 +126,18 @@ Think of this layer as **plumbing, not judgment**.
 ---
 
 ### 5. `agent/` — Automation & Execution
+
 **Task coordination only.**
 
 Responsibilities:
+
 - Sequence scans
 - Trigger adapters
 - Call services
 - Deliver inputs to Core
 
 Rules:
+
 - Cannot override Core verdicts
 - Cannot soften failures
 - Cannot "retry until pass"
@@ -132,14 +149,17 @@ They do not reason about safety.
 ---
 
 ### 6. `apis/` — Transport Layer
+
 **Exposure, not interpretation.**
 
 Responsibilities:
+
 - HTTP / RPC / CLI interfaces
 - Input validation
 - Output serialization
 
 Rules:
+
 - Must return Core verdicts verbatim
 - No conditional branching on verdict meaning
 - No UX-driven softening of FAIL
@@ -151,15 +171,18 @@ They do not reshape it.
 ---
 
 ### 7. `gen/` — Narrative & Explanation
+
 **Human-facing output only.**
 
 Responsibilities:
+
 - Explanations
 - Summaries
 - LLM-generated descriptions
 - UI copy
 
 Rules:
+
 - NEVER emit verdicts
 - NEVER influence decisions
 - NEVER modify inputs
@@ -171,14 +194,17 @@ It does not change what happened.
 ---
 
 ### 8. `utils/` — Pure Helpers
+
 **Danger zone if abused.**
 
 Responsibilities:
+
 - Small, pure helper functions
 - Formatting
 - Non-semantic transformations
 
 Rules:
+
 - No retries
 - No error masking
 - No default substitution
@@ -197,6 +223,7 @@ If a utility changes behavior in a failure case, it does not belong here.
 - "Uncertain" is not a valid state
 
 If a future change violates these rules:
+
 - It is a bug
 - It is not a feature
 - It must be reverted
@@ -223,6 +250,7 @@ This is how you ship something people will pay for.
 Antigravity may receive observational signals from TK22 pipelines.
 
 Antigravity is not permitted to:
+
 - Produce verdicts
 - Modify TK22 outcomes
 - Override FAIL states

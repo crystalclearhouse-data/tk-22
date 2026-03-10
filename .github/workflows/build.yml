@@ -13,81 +13,81 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '16'
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
 
-    - name: Install Node.js dependencies
-      run: |
-        if [ -f "package.json" ]; then
-          echo "📦 Installing Node.js dependencies..."
-          npm install
-        else
-          echo "⚠️ No package.json found - skipping Node.js dependencies"
-        fi
+      - name: Install Node.js dependencies
+        run: |
+          if [ -f "package.json" ]; then
+            echo "📦 Installing Node.js dependencies..."
+            npm install
+          else
+            echo "⚠️ No package.json found - skipping Node.js dependencies"
+          fi
 
-    - name: Run ESLint
-      run: |
-        if [ -f "package.json" ] && npm list eslint > /dev/null 2>&1; then
-          echo "🔍 Running ESLint..."
-          npx eslint . --ext .ts,.tsx,.js,.jsx
-        else
-          echo "⚠️ ESLint not available - skipping linting"
-        fi
+      - name: Run ESLint
+        run: |
+          if [ -f "package.json" ] && npm list eslint > /dev/null 2>&1; then
+            echo "🔍 Running ESLint..."
+            npx eslint . --ext .ts,.tsx,.js,.jsx
+          else
+            echo "⚠️ ESLint not available - skipping linting"
+          fi
 
-    - name: Run Prettier
-      run: |
-        if [ -f "package.json" ] && npm list prettier > /dev/null 2>&1; then
-          echo "💅 Checking code formatting with Prettier..."
-          npx prettier --check .
-        else
-          echo "⚠️ Prettier not available - skipping format check"
-        fi
+      - name: Run Prettier
+        run: |
+          if [ -f "package.json" ] && npm list prettier > /dev/null 2>&1; then
+            echo "💅 Checking code formatting with Prettier..."
+            npx prettier --check .
+          else
+            echo "⚠️ Prettier not available - skipping format check"
+          fi
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.11'
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.11'
 
-    - name: Install Python dependencies
-      run: |
-        if [ -f "requirements.txt" ]; then
-          echo "🐍 Installing Python dependencies..."
-          pip install -r requirements.txt
-        else
-          echo "⚠️ No requirements.txt found - skipping Python dependencies"
-        fi
+      - name: Install Python dependencies
+        run: |
+          if [ -f "requirements.txt" ]; then
+            echo "🐍 Installing Python dependencies..."
+            pip install -r requirements.txt
+          else
+            echo "⚠️ No requirements.txt found - skipping Python dependencies"
+          fi
 
-    - name: Run Pylint
-      run: |
-        if [ -f "requirements.txt" ] && pip show pylint > /dev/null 2>&1; then
-          echo "🔍 Running Pylint..."
-          find . -name "*.py" -exec pylint {} \; || echo "⚠️ Pylint found issues but continuing..."
-        else
-          echo "⚠️ Pylint not available - skipping Python linting"
-        fi
+      - name: Run Pylint
+        run: |
+          if [ -f "requirements.txt" ] && pip show pylint > /dev/null 2>&1; then
+            echo "🔍 Running Pylint..."
+            find . -name "*.py" -exec pylint {} \; || echo "⚠️ Pylint found issues but continuing..."
+          else
+            echo "⚠️ Pylint not available - skipping Python linting"
+          fi
 
-    - name: Run JavaScript tests
-      run: |
-        if [ -f "package.json" ] && npm list > /dev/null 2>&1; then
-          echo "🧪 Running JavaScript tests..."
-          npm test
-        else
-          echo "⚠️ No JavaScript test setup found - skipping JS tests"
-        fi
+      - name: Run JavaScript tests
+        run: |
+          if [ -f "package.json" ] && npm list > /dev/null 2>&1; then
+            echo "🧪 Running JavaScript tests..."
+            npm test
+          else
+            echo "⚠️ No JavaScript test setup found - skipping JS tests"
+          fi
 
-    - name: Run Python tests
-      run: |
-        if [ -f "requirements.txt" ] && pip show pytest > /dev/null 2>&1; then
-          echo "🧪 Running Python tests..."
-          pytest
-        elif [ -d "tests" ] && find tests -name "*.py" | grep -q .; then
-          echo "🧪 Running Python tests with unittest..."
-          python -m unittest discover tests
-        else
-          echo "⚠️ No Python test setup found - skipping Python tests"
-        fi
+      - name: Run Python tests
+        run: |
+          if [ -f "requirements.txt" ] && pip show pytest > /dev/null 2>&1; then
+            echo "🧪 Running Python tests..."
+            pytest
+          elif [ -d "tests" ] && find tests -name "*.py" | grep -q .; then
+            echo "🧪 Running Python tests with unittest..."
+            python -m unittest discover tests
+          else
+            echo "⚠️ No Python test setup found - skipping Python tests"
+          fi

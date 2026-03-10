@@ -1,4 +1,4 @@
-import { scanToken } from '../scan';
+import { scanToken } from '../scan'
 
 describe('TK22 Scan API (verbatim contract)', () => {
   it('returns FAIL when facts are missing (fail-closed)', async () => {
@@ -8,9 +8,9 @@ describe('TK22 Scan API (verbatim contract)', () => {
       mintAuthorityRenounced: null,
       freezeAuthorityRenounced: null,
       ageInDays: null,
-    });
+    })
 
-    expect(result.verdict).toBe('FAIL');
-    expect(result.reasons.length).toBeGreaterThan(0);
-  });
-});
+    expect(result.verdict).toBe('FAIL')
+    expect(result.reasons.length).toBeGreaterThan(0)
+  })
+})

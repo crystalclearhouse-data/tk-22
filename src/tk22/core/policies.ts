@@ -6,4 +6,4 @@ export const POLICIES = {
     TOP_HOLDER_PERCENT: 40,
     TOP_FIVE_PERCENT: 80,
   },
-};
+}

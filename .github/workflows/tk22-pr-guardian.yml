@@ -32,7 +32,7 @@ jobs:
               "author": "${{ github.event.pull_request.user.login }}",
               "timestamp": "${{ github.event.pull_request.updated_at }}"
             }'
-          
+
           if [ $? -eq 0 ]; then
             echo "✅ Successfully sent PR event to n8n"
           else
