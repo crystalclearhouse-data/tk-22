@@ -15,10 +15,12 @@ jobs:
           N8N_WEBHOOK_URL: ${{ secrets.N8N_TK22_PR_WEBHOOK }}
         run: |
           if [ -z "$N8N_WEBHOOK_URL" ]; then
-            echo "❌ Missing N8N webhook URL"
-            exit 1
+            echo "⚠️ N8N webhook URL not configured, skipping notification"
+            echo "To enable PR notifications, set the N8N_TK22_PR_WEBHOOK secret"
+            exit 0
           fi
 
+          echo "📡 Sending PR notification to n8n webhook..."
           curl -X POST "$N8N_WEBHOOK_URL" \
             -H "Content-Type: application/json" \
             -d '{
@@ -29,4 +31,4 @@ jobs:
               "commit": "${{ github.event.pull_request.head.sha }}",
               "author": "${{ github.event.pull_request.user.login }}",
               "timestamp": "${{ github.event.pull_request.updated_at }}"
-            }'
+            }' && echo "✅ PR notification sent successfully"
