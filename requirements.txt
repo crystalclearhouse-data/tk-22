@@ -1,0 +1,10 @@
+# TK-22 Python Dependencies
+
+# Core API framework
+flask>=2.0.0
+
+# HTTP client for webhook integration
+requests>=2.25.0
+
+# Development and testing
+unittest2>=1.1.0

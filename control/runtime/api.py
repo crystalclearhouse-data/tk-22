@@ -7,6 +7,20 @@ It performs EVALUATION only - no execution or integration actions.
 from flask import Flask, request, jsonify
 from datetime import datetime
 import uuid
+import sys
+import os
+import logging
+
+# Add src directory to Python path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+
+from tk22.config import WebhookConfig
+from tk22.adapters.webhook import WebhookClient
+from tk22.services.webhook_service import WebhookService
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
@@ -14,6 +28,16 @@ app = Flask(__name__)
 SAFE_TO_PROCEED = "SAFE_TO_PROCEED"
 ACTION_REQUIRED = "ACTION_REQUIRED"
 DO_NOT_PROCEED = "DO_NOT_PROCEED"
+
+# Initialize webhook components
+webhook_config = WebhookConfig()
+webhook_client = WebhookClient(
+    webhook_url=webhook_config.get_webhook_url(),
+    timeout=webhook_config.get_timeout()
+)
+webhook_service = WebhookService(webhook_client)
+
+logger.info(f"Webhook integration initialized: {webhook_config.get_config_summary()}")
 
 @app.route('/execute', methods=['POST'])
 def execute():
@@ -66,12 +90,43 @@ def execute():
     
     # Log evaluation (not shown - would write to control/memory)
     
-    # Return verdict
-    return jsonify({
+    # Prepare verdict response
+    verdict_response = {
         "verdict": verdict,
         "summary": summary,
         "proof_id": proof_id
-    }), 200
+    }
+    
+    # Send webhook notification (non-blocking)
+    if webhook_config.is_enabled():
+        try:
+            webhook_result = webhook_service.notify_verdict(
+                verdict_data=verdict_response,
+                request_data=data
+            )
+            
+            if webhook_result is not None:
+                logger.info(f"Webhook notification sent successfully for proof_id: {proof_id}")
+            else:
+                logger.warning(f"Webhook notification failed for proof_id: {proof_id}")
+                
+                # Only fail the request if configured to do so
+                if webhook_config.should_fail_on_error():
+                    return jsonify({
+                        "error": "Webhook notification failed and WEBHOOK_FAIL_ON_ERROR is enabled"
+                    }), 500
+                    
+        except Exception as e:
+            logger.error(f"Webhook notification error for proof_id {proof_id}: {str(e)}")
+            
+            # Only fail the request if configured to do so
+            if webhook_config.should_fail_on_error():
+                return jsonify({
+                    "error": f"Webhook notification error: {str(e)}"
+                }), 500
+    
+    # Return verdict (webhook failures don't affect verdict by default)
+    return jsonify(verdict_response), 200
 
 if __name__ == '__main__':
     # Run on port 5000 by default
