@@ -1,31 +1,32 @@
 {
-  "timestamp": "20260122T175527Z",
-  "status": "PASS",
+  "note": "Template/example of a scan result. Real generated scan artifacts should not be committed; store them as CI artifacts and ignore control/proofs/*.json in .gitignore.",
+  "timestamp": "${TIMESTAMP}",
+  "status": "UNKNOWN",
   "exit_code": 0,
   "checks": [
     {
       "id": "control",
-      "status": "PASS"
+      "status": "UNKNOWN"
     },
     {
       "id": "control/memory",
-      "status": "PASS"
+      "status": "UNKNOWN"
     },
     {
       "id": "control/proofs",
-      "status": "PASS"
+      "status": "UNKNOWN"
     },
     {
       "id": "control/runtime",
-      "status": "PASS"
+      "status": "UNKNOWN"
     },
     {
       "id": ".github/workflows",
-      "status": "PASS"
+      "status": "UNKNOWN"
     }
   ],
   "git": {
-    "branch": "dev",
-    "commit": "ebcb5175b1aae6d9e9c6249085616dfb8375fe4d"
+    "branch": "${BRANCH}",
+    "commit": "${COMMIT}"
   }
 }
