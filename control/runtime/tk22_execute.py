@@ -14,7 +14,7 @@ def ts():
 def git(cmd):
     try:
         return subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode().strip()
-    except:
+    except Exception:
         return None
 
 def scan():
