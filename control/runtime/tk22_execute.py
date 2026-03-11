@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 import sys
 import os
 
-ROOT = Path.cwd()
+ROOT = Path(__file__).resolve().parents[2]
 PROOFS = ROOT / "control/proofs"
 
 def ts():
