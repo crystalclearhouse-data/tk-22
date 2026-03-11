@@ -4,3 +4,8 @@
 .env.*
 node_modules/
 dist/
+
+# Generated runtime artifacts — store as CI artifacts instead
+control/proofs/tk22_scan_2*.json
+control/proofs/tk22_execute_*.json
+control/memory/clickup_intake.json
