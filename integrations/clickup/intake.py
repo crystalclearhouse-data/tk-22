@@ -3,19 +3,19 @@ import json
 import requests
 from pathlib import Path
 
-TOKEN = os.getenv("CLICKUP_API_TOKEN")
-LIST_ID = os.getenv("CLICKUP_LIST_ID")
-
-if not TOKEN or not LIST_ID:
-    raise RuntimeError("Missing ClickUp env vars")
-
-headers = {
-    "Authorization": TOKEN,
-    "Content-Type": "application/json"
-}
-
 def fetch_tasks():
-    url = f"https://api.clickup.com/api/v2/list/{LIST_ID}/task"
+    token = os.getenv("CLICKUP_API_TOKEN")
+    list_id = os.getenv("CLICKUP_LIST_ID")
+
+    if not token or not list_id:
+        raise RuntimeError("Missing ClickUp env vars")
+
+    headers = {
+        "Authorization": token,
+        "Content-Type": "application/json"
+    }
+
+    url = f"https://api.clickup.com/api/v2/list/{list_id}/task"
     r = requests.get(url, headers=headers)
     r.raise_for_status()
     return r.json()["tasks"]
