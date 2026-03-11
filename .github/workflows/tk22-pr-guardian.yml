@@ -19,14 +19,28 @@ jobs:
             exit 1
           fi
 
-          curl -X POST "$N8N_WEBHOOK_URL" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "event": "pull_request",
-              "repo": "${{ github.repository }}",
-              "pr_number": "${{ github.event.pull_request.number }}",
-              "branch": "${{ github.event.pull_request.head.ref }}",
-              "commit": "${{ github.event.pull_request.head.sha }}",
-              "author": "${{ github.event.pull_request.user.login }}",
-              "timestamp": "${{ github.event.pull_request.updated_at }}"
-            }'
+          for attempt in 1 2 3; do
+            echo "Sending PR event to n8n (attempt ${attempt})..."
+            if curl --fail-with-body -X POST "$N8N_WEBHOOK_URL" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "event": "pull_request",
+                "repo": "${{ github.repository }}",
+                "pr_number": "${{ github.event.pull_request.number }}",
+                "branch": "${{ github.event.pull_request.head.ref }}",
+                "commit": "${{ github.event.pull_request.head.sha }}",
+                "author": "${{ github.event.pull_request.user.login }}",
+                "timestamp": "${{ github.event.pull_request.updated_at }}"
+              }'; then
+              echo "✅ PR event delivered to n8n"
+              break
+            else
+              echo "⚠️ Failed to deliver PR event to n8n (attempt ${attempt})"
+              if [ "$attempt" -lt 3 ]; then
+                sleep $((attempt * 5))
+              else
+                echo "❌ Giving up after ${attempt} failed attempts"
+                exit 1
+              fi
+            fi
+          done
