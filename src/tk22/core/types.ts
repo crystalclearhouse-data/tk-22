@@ -17,7 +17,7 @@ export type VerdictResult = {
   token: string;
   verdict: Verdict;
   confidence: number;
-  signals: Record<string, boolean | number | null>;
+  signals: Record<string, string | boolean | number | null>;
   reasoning: string[];
   recommendation: "DO NOT TOUCH" | "HIGH RISK" | "STRUCTURALLY SAFE";
 };
