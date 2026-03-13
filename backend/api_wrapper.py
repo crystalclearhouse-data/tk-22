@@ -31,5 +31,7 @@ def scan_with_auth(context: dict) -> dict:
     # Log the attempt (billed unit)
     log_usage(api_key, "scan")
 
-    # Pass through to core (No mutation of logic)
-    return engine.run_cycle(context)
+    # Pass through to core (No mutation of logic) with sanitized context
+    sanitized_context = dict(context)
+    sanitized_context.pop("api_key", None)
+    return engine.run_cycle(sanitized_context)
