@@ -34,5 +34,6 @@ if __name__ == "__main__":
     intake = [normalize_task(t) for t in tasks]
 
     out = Path("control/memory/clickup_intake.json")
+    out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(intake, indent=2))
     print(f"Saved {len(intake)} tasks to {out}")
