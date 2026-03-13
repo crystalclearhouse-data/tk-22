@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  tk22:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tk22-dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    env_file:
+      - .env.local
+    volumes:
+      - .:/app
+      - /app/node_modules
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
