@@ -44,3 +44,18 @@ Thumbs.db
 # Lint/formatting reports
 .eslintcache
 .prettiercache
+
+# Terraform
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+tfplan
+*.tfplan
+
+# Docker
+ops/docker/.env
+
+# Doppler (never commit the local token)
+.doppler-token

@@ -1,0 +1,174 @@
+name: Terraform
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'ops/terraform/**'
+  push:
+    branches: [main]
+    paths:
+      - 'ops/terraform/**'
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Run terraform apply (requires environment input)'
+        type: boolean
+        default: false
+      environment:
+        description: 'Target environment'
+        type: choice
+        default: 'development'
+        options:
+          - development
+          - staging
+          - production
+
+defaults:
+  run:
+    working-directory: ops/terraform
+
+jobs:
+  validate:
+    name: Validate Terraform
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '~> 1.6'
+
+      - name: Terraform Format Check
+        id: fmt
+        run: terraform fmt -check -recursive
+        continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        run: |
+          terraform init -backend=false
+        env:
+          TF_CLI_ARGS: "-no-color"
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Post validation result to PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fmt    = '${{ steps.fmt.outcome }}';
+            const init   = '${{ steps.init.outcome }}';
+            const valid  = '${{ steps.validate.outcome }}';
+            const icon   = (s) => s === 'success' ? '✅' : '❌';
+            const body   = [
+              '### Terraform Validation',
+              `| Step | Result |`,
+              `|------|--------|`,
+              `| Format | ${icon(fmt)} \`${fmt}\` |`,
+              `| Init   | ${icon(init)} \`${init}\` |`,
+              `| Validate | ${icon(valid)} \`${valid}\` |`,
+            ].join('\n');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });
+
+  plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '~> 1.6'
+
+      - name: Terraform Init
+        run: terraform init
+        env:
+          TF_CLI_ARGS: "-no-color"
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+          ENV="${{ github.event.inputs.environment || 'development' }}"
+          terraform plan -no-color -var-file="environments/${ENV}.tfvars" \
+            -out=tfplan 2>&1 | tee plan_output.txt
+        env:
+          TF_VAR_image_tag: ${{ github.sha }}
+
+      - name: Upload plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-${{ github.sha }}
+          path: ops/terraform/tfplan
+          retention-days: 7
+
+  apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    needs: plan
+    if: |
+      github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.apply == 'true' &&
+      github.ref == 'refs/heads/main'
+    environment: ${{ github.event.inputs.environment || 'development' }}
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '~> 1.6'
+
+      - name: Terraform Init
+        run: terraform init
+        env:
+          TF_CLI_ARGS: "-no-color"
+
+      - name: Download plan
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan-${{ github.sha }}
+          path: ops/terraform/
+
+      - name: Terraform Apply
+        run: terraform apply -no-color -auto-approve tfplan

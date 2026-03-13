@@ -1,0 +1,35 @@
+# TK-22 local development environment
+# Usage: docker compose up
+#
+# Secrets: copy .env.example → .env and fill in values.
+# Never commit .env to version control.
+
+services:
+  control-api:
+    build:
+      context: ../..
+      dockerfile: ops/docker/Dockerfile
+    ports:
+      # CONTROL_API_PORT sets the HOST port; the container always listens on 5000.
+      - "${CONTROL_API_PORT:-5000}:5000"
+    environment:
+      - APP_ENV=${APP_ENV:-development}
+      - FLASK_ENV=${FLASK_ENV:-development}
+      - LOG_LEVEL=${LOG_LEVEL:-DEBUG}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DISCORD_WEBHOOK=${DISCORD_WEBHOOK}
+      - N8N_HOST=${N8N_HOST}
+      - HELIUS_API_KEY=${HELIUS_API_KEY}
+      - HELIUS_RPC_URL=${HELIUS_RPC_URL}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+    volumes:
+      - ../../control:/app/control
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
