@@ -1,6 +1,6 @@
 // src/tk22/apis/scan.ts
 
-import { evaluateVerdict } from '../core/verdictEngine';
+import { evaluateToken } from '../core/verdictEngine';
 import { ChainFacts } from '../core/types';
 
 /**
@@ -11,5 +11,5 @@ import { ChainFacts } from '../core/types';
  * Returns core verdict verbatim.
  */
 export async function scanToken(facts: ChainFacts) {
-  return evaluateVerdict(facts);
+  return evaluateToken(facts);
 }

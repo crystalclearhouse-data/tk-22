@@ -1,16 +1,24 @@
 import { scanToken } from '../scan';
+import { ChainFacts } from '../../core/types';
 
 describe('TK22 Scan API (verbatim contract)', () => {
-  it('returns FAIL when facts are missing (fail-closed)', async () => {
-    const result = await scanToken({
-      liquidityUSD: null,
-      holderCount: null,
-      mintAuthorityRenounced: null,
-      freezeAuthorityRenounced: null,
-      ageInDays: null,
-    });
+  it('returns FAIL_CLOSED when facts are missing (fail-closed)', async () => {
+    const facts: ChainFacts = {
+      mint: 'unknown',
+      mintAuthorityActive: null,
+      freezeAuthorityActive: null,
+      totalSupply: null,
+      topHolderPercent: null,
+      topFiveHolderPercent: null,
+      totalHolders: null,
+      recentTxCount: null,
+      fetchedAt: new Date().toISOString(),
+      source: 'helius',
+    };
 
-    expect(result.verdict).toBe('FAIL');
-    expect(result.reasons.length).toBeGreaterThan(0);
+    const result = await scanToken(facts);
+
+    expect(result.verdict).toBe('FAIL_CLOSED');
+    expect(result.reasoning.length).toBeGreaterThan(0);
   });
 });
