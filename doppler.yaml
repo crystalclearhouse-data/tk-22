@@ -1,0 +1,13 @@
+# Doppler secrets management configuration
+# https://docs.doppler.com/docs/doppler-yaml
+#
+# Usage:
+#   doppler setup              — authenticate and link project
+#   doppler run -- <command>   — inject secrets into any command
+#   doppler secrets download --no-file --format env > .env  — bootstrap local dev
+#
+# CI/CD integration: use DOPPLER_TOKEN secret in GitHub Actions (see .github/workflows/).
+
+setup:
+  project: tk-22
+  config: dev

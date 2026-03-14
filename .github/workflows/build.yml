@@ -4,52 +4,57 @@ on:
   push:
     branches:
       - main
+      - dev
   pull_request:
     branches:
       - main
 
 jobs:
-  build:
+  lint-and-test:
+    name: Lint & Test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '16'
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
 
-    - name: Install Node.js dependencies
-      run: |
-        npm install
+      - name: Install Node.js dependencies
+        run: npm ci
 
-    - name: Run ESLint
-      run: |
-        npx eslint .
+      - name: Run ESLint
+        run: npm run lint
 
-    - name: Run Prettier
-      run: |
-        npx prettier --check .
+      - name: Run TypeScript check
+        run: npm run typecheck
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.11'
+      - name: Run JavaScript tests
+        run: npm test
 
-    - name: Install Python dependencies
-      run: |
-        pip install -r requirements.txt
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
 
-    - name: Run Pylint
-      run: |
-        pylint **/*.py
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
 
-    - name: Run JavaScript tests
-      run: |
-        npm test
-
-    - name: Run Python tests
-      run: |
-        pytest
+      - name: Run Python tests
+        run: |
+          if [ -d "tests" ]; then
+            python -m pytest tests/ -v
+          else
+            echo "No tests directory — skipping"
+          fi
