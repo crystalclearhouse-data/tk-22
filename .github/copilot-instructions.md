@@ -1,11 +1,13 @@
 # Crystal Clear Data - Copilot Instructions
 
 ## Core Context
+
 I operate multiple digital businesses: TheDiscoBass (NFT/music), Prompt Parlay (AI sports betting), the_steele_zone (content), Family Wealth Engine (real estate), plus tk-22, tk-22-ui, cognitive-ai, and disco-agent-saas. I code in Python, use Supabase databases, n8n automation, Claude MCP for AI. I value direct, action-oriented solutions over theory.
 
 ## Execution Rules (CRITICAL)
 
 ### ALWAYS
+
 - Run operations through VS Code tasks in `.vscode/tasks.json`
 - Start paths from `${workspaceFolder}` root
 - Load env vars from `.env` only
@@ -18,6 +20,7 @@ I operate multiple digital businesses: TheDiscoBass (NFT/music), Prompt Parlay (
 - Add docstrings to functions
 
 ### NEVER
+
 - Execute shell commands outside defined tasks
 - Use `os.system()` or `subprocess` without approval
 - Modify files outside workspace
@@ -27,6 +30,7 @@ I operate multiple digital businesses: TheDiscoBass (NFT/music), Prompt Parlay (
 - Guess at API credentials
 
 ## When I Say "Run everything safely"
+
 → Execute VS Code task: "Run Everything Safely"
 → NOT freeform command
 → Only approved multi-step entry point per `.vscode/tasks.json`
@@ -34,6 +38,7 @@ I operate multiple digital businesses: TheDiscoBass (NFT/music), Prompt Parlay (
 ## Code Style
 
 ### Python
+
 ```python
 def fetch_properties(county: str) -> list[dict]:
     """Fetch properties from Supabase."""
@@ -43,21 +48,23 @@ def fetch_properties(county: str) -> list[dict]:
 ```
 
 ### TypeScript
+
 ```typescript
 interface PropertyQuery {
-  county: string;
+  county: string
 }
 
 async function fetchProperties(query: PropertyQuery): Promise<Property[]> {
   const { data } = await supabase
     .from('properties')
     .select('*')
-    .eq('county', query.county);
-  return data;
+    .eq('county', query.county)
+  return data
 }
 ```
 
 ## Project Structure
+
 - `/backend` - Python FastAPI services
 - `/frontend` - Next.js/React UI
 - `/automation` - n8n workflows
@@ -65,12 +72,14 @@ async function fetchProperties(query: PropertyQuery): Promise<Property[]> {
 - `/ops` - Deployment configs
 
 ## Key Files
+
 - `.vscode/tasks.json` - All approved automation
 - `.agents/authority.md` - Agent permissions
 - `REPO_CONTRACT.md` - Development rules
 - `.env.example` - Required environment variables
 
 ## Common Patterns
+
 - Always validate Supabase connections before operations
 - Use environment-specific configs (dev/staging/prod)
 - Log all external API calls
@@ -78,6 +87,7 @@ async function fetchProperties(query: PropertyQuery): Promise<Property[]> {
 - Write tests for business logic
 
 ## Questions to Ask
+
 - "Should this be a VS Code task?"
 - "Do I need to check agent authority?"
 - "Are there security implications?"

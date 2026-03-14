@@ -1,4 +1,4 @@
-import { ChainFacts } from "../../core/types";
+import { ChainFacts } from '../../core/types'
 
 export async function fetchChainFacts(mint: string): Promise<ChainFacts> {
   // Placeholder — execution happens locally or in CI later
@@ -12,6 +12,6 @@ export async function fetchChainFacts(mint: string): Promise<ChainFacts> {
     totalHolders: null,
     recentTxCount: null,
     fetchedAt: new Date().toISOString(),
-    source: "helius",
-  };
+    source: 'helius',
+  }
 }

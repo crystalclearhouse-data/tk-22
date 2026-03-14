@@ -9,6 +9,7 @@ The runtime performs **EVALUATION ONLY** - it does not execute integrations, tri
 ## Purpose
 
 The control runtime exists to:
+
 1. Accept input from the frontend
 2. Evaluate risk based on mode (default/cautious/aggressive)
 3. Return a single verdict: `SAFE_TO_PROCEED`, `ACTION_REQUIRED`, or `DO_NOT_PROCEED`
@@ -23,6 +24,7 @@ Flask API endpoint that implements POST /execute according to the frontend contr
 **Endpoint**: `POST /execute`
 
 **Request**:
+
 ```json
 {
   "input": "string | json",
@@ -32,6 +34,7 @@ Flask API endpoint that implements POST /execute according to the frontend contr
 ```
 
 **Response**:
+
 ```json
 {
   "verdict": "SAFE_TO_PROCEED | ACTION_REQUIRED | DO_NOT_PROCEED",
@@ -77,6 +80,7 @@ curl -X POST http://localhost:5000/execute \
 ```
 
 **Expected Response**:
+
 ```json
 {
   "verdict": "SAFE_TO_PROCEED",
@@ -93,19 +97,21 @@ This runtime strictly adheres to `docs/FRONTEND_CONTROL_CONTRACT.md`:
 ✅ **Performs evaluation only** (no execution/integrations)  
 ✅ **Returns single verdict** with summary and proof_id  
 ✅ **Respects semantic constraints** ("Submit for Evaluation" means no execution)  
-✅ **Terminal state** (every run ends with exactly one verdict)  
+✅ **Terminal state** (every run ends with exactly one verdict)
 
 ## Workspace State: DEMO
 
 This runtime is configured for the DEMO workspace as defined in `docs/WORKSPACE_STATE.md`.
 
 **DEMO mode behavior**:
+
 - Always returns `SAFE_TO_PROCEED`
 - No real risk assessment logic
 - No integration with external systems
 - Minimal logging (proof_id generation only)
 
 **Promotion to LIVE** will require:
+
 - Implementing actual risk evaluation logic
 - Mode-based assessment (cautious vs aggressive)
 - Integration with control/memory for state tracking
@@ -130,6 +136,7 @@ Frontend (displays verdict)
 ## Non-Goals (Explicit)
 
 The control runtime does **NOT**:
+
 - Choose agents
 - Decide risk (currently hardcoded to SAFE)
 - Execute integrations

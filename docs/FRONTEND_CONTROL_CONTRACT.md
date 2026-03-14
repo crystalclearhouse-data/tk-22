@@ -4,11 +4,13 @@ This document defines the binding contract between the TK-22 frontend
 and the control/runtime layer.
 
 The frontend is authoritative on:
+
 - User intent
 - Input payload
 - When execution begins
 
 The control layer is authoritative on:
+
 - Validation
 - Agent execution
 - Final closure verdict
@@ -37,9 +39,9 @@ This endpoint replaces the current mock API.
 
 Notes:
 
-- input is opaque to the frontend  
-- Control decides how it is interpreted  
-- Frontend does not validate business logic  
+- input is opaque to the frontend
+- Control decides how it is interpreted
+- Frontend does not validate business logic
 
 ---
 
@@ -47,10 +49,10 @@ Notes:
 
 Control responds with execution state updates:
 
-- RECEIVED  
-- RUNNING  
-- BLOCKED (if human action required)  
-- COMPLETE  
+- RECEIVED
+- RUNNING
+- BLOCKED (if human action required)
+- COMPLETE
 
 The frontend only displays these states.
 
@@ -68,9 +70,9 @@ Every execution MUST end with exactly one verdict:
 }
 ```
 
-- No execution may end without a verdict  
-- The frontend treats this as terminal  
-- Human disengagement is expected after closure  
+- No execution may end without a verdict
+- The frontend treats this as terminal
+- Human disengagement is expected after closure
 
 ---
 
@@ -78,16 +80,15 @@ Every execution MUST end with exactly one verdict:
 
 The frontend does NOT:
 
-- Choose agents  
-- Decide risk  
-- Execute integrations  
-- Store state long-term  
+- Choose agents
+- Decide risk
+- Execute integrations
+- Store state long-term
 
 The control layer does NOT:
 
-- Care about UI  
+- Care about UI
 - Manage layout or presentation
-
 
 ---
 
@@ -96,6 +97,7 @@ The control layer does NOT:
 Frontend copy intentionally avoids action-oriented language.
 
 Implications:
+
 - "Submit for Evaluation" means no execution occurs at submission.
 - "Evaluation in Progress" implies analysis only.
 - "Decision Complete" implies terminal state.
