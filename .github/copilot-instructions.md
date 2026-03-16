@@ -1,84 +1,176 @@
-# Crystal Clear Data - Copilot Instructions
+# TK-22 Copilot Instructions
 
-## Core Context
-I operate multiple digital businesses: TheDiscoBass (NFT/music), Prompt Parlay (AI sports betting), the_steele_zone (content), Family Wealth Engine (real estate), plus tk-22, tk-22-ui, cognitive-ai, and disco-agent-saas. I code in Python, use Supabase databases, n8n automation, Claude MCP for AI. I value direct, action-oriented solutions over theory.
+## What This Repo Is
 
-## Execution Rules (CRITICAL)
+TK-22 is a **deterministic, fail-closed verdict engine** for Solana token safety analysis.
 
-### ALWAYS
-- Run operations through VS Code tasks in `.vscode/tasks.json`
-- Start paths from `${workspaceFolder}` root
-- Load env vars from `.env` only
-- Check `.agents/authority.md` before multi-step ops
-- Use Python 3.11+ with type hints
-- Prefer f-strings over .format()
-- Use `python-dotenv` for config
-- Import: `from supabase import create_client, Client`
-- Use `requests` library for HTTP
-- Add docstrings to functions
+It answers one question: *Is this on-chain asset structurally safe to proceed with?*
 
-### NEVER
-- Execute shell commands outside defined tasks
-- Use `os.system()` or `subprocess` without approval
-- Modify files outside workspace
-- Commit secrets, API keys, `.env` files
-- Use `eval()` or `exec()` on untrusted input
-- Install without updating `requirements.txt`
-- Guess at API credentials
+If required facts are missing, unclear, or unverifiable — the system **fails closed**.  
+There is no "probably safe." There is no "best guess." There is only **SAFE** or **FAIL_CLOSED**.
 
-## When I Say "Run everything safely"
-→ Execute VS Code task: "Run Everything Safely"
-→ NOT freeform command
-→ Only approved multi-step entry point per `.vscode/tasks.json`
+Read `ARCHITECTURE.md` and `REPO_CONTRACT.md` before making any changes.
 
-## Code Style
+---
 
-### Python
-```python
-def fetch_properties(county: str) -> list[dict]:
-    """Fetch properties from Supabase."""
-    supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_SERVICE_KEY"))
-    response = supabase.table("properties").select("*").eq("county", county).execute()
-    return response.data
-```
+## Critical Invariant — Never Break This
 
-### TypeScript
+**Only `src/tk22/core/` may produce or influence a verdict.**
+
+All other layers:
+- supply data (`adapters/`)
+- wire pipelines (`services/`)
+- sequence tasks (`agent/`)
+- expose results (`apis/`)
+- explain results (`gen/`)
+- provide pure helpers (`utils/`)
+
+**They never decide.** If any layer outside `core/` contains logic that changes a verdict outcome, it is a bug.
+
+---
+
+## Layer Boundaries
+
+| Layer | Purpose | May Decide? |
+|---|---|---|
+| `core/` | Deterministic policy evaluation, verdict generation | ✅ Only layer that may |
+| `adapters/` | Fetch + normalize external data (Helius RPC) | ❌ |
+| `models/` | Type definitions and structural schemas | ❌ |
+| `services/` | Orchestrate data flow, prepare inputs for core | ❌ |
+| `agent/` | Sequence scans, trigger adapters, deliver inputs | ❌ |
+| `apis/` | HTTP/RPC transport, return core verdicts verbatim | ❌ |
+| `gen/` | Human-facing explanations, LLM narrative output | ❌ |
+| `utils/` | Pure helper functions, formatting | ❌ |
+
+`core/` has no imports from any other layer. ESLint enforces this via `no-restricted-imports`.
+
+---
+
+## Verdict Types
+
 ```typescript
-interface PropertyQuery {
-  county: string;
-}
+type Verdict = "SAFE" | "WARNING" | "FAIL_CLOSED";
+```
 
-async function fetchProperties(query: PropertyQuery): Promise<Property[]> {
-  const { data } = await supabase
-    .from('properties')
-    .select('*')
-    .eq('county', query.county);
-  return data;
+- **`FAIL_CLOSED`** — Any structural risk detected or any required fact is missing.
+- **`SAFE`** — All required facts present and within policy thresholds.
+- **`WARNING`** — Optional intermediate state; defined in `core/policies.ts`.
+
+### Fail-Closed Rules
+- Missing data → `FAIL_CLOSED` (never default missing values to safe)
+- `FAIL_CLOSED` cannot be downgraded by any layer above `core/`
+- No retries until a pass — run once, return result
+
+---
+
+## Repository Structure
+
+```
+src/tk22/
+  core/          # Verdict engine (isolated, no outside imports)
+    types.ts     # ChainFacts, VerdictResult, Verdict types
+    policies.ts  # Numeric thresholds (TOP_HOLDER_PERCENT, etc.)
+    verdictEngine.ts  # evaluateToken(facts: ChainFacts): VerdictResult
+  adapters/
+    helius/      # Helius RPC client, returns ChainFacts
+  apis/          # HTTP transport, returns core verdicts verbatim
+  agent/         # Task coordination only
+  services/      # Data pipeline wiring
+  gen/           # Narrative/explanation output
+  utils/         # Pure helpers
+
+backend/         # Python agent/LLM services
+frontend/        # UI (lovable prompts, states, copy)
+automation/      # n8n workflows
+integrations/    # External API connectors
+ops/             # Deployment configs
+agents/          # Agent definitions
+docs/            # Documentation
+```
+
+---
+
+## Code Conventions
+
+### TypeScript (primary language for `src/tk22/`)
+- TypeScript 5.4+, strict mode
+- ESLint 8 with `@typescript-eslint` — run `npm run lint`
+- Jest with `ts-jest` for tests — run `npm test`
+- Build with `tsc` — run `npm run build`
+- Explicit types on all function signatures
+- No `any` except where unavoidable (add a comment explaining why)
+
+```typescript
+// Good: explicit types, named export, no side effects in core
+export function evaluateToken(facts: ChainFacts): VerdictResult {
+  const reasons: string[] = [];
+  if (facts.mintAuthorityActive !== false) {
+    reasons.push("Mint authority active or unknown");
+  }
+  // ...
 }
 ```
 
-## Project Structure
-- `/backend` - Python FastAPI services
-- `/frontend` - Next.js/React UI
-- `/automation` - n8n workflows
-- `/integrations` - External API connectors
-- `/ops` - Deployment configs
+### Python (used in `backend/`)
+- Python 3.11+ with type hints on all functions
+- Prefer f-strings over `.format()`
+- Use `python-dotenv` — load env vars from `.env` only
+- Use `requests` for HTTP calls
+- Add docstrings to all functions
+
+```python
+def fetch_token_facts(mint: str) -> dict:
+    """Fetch on-chain token facts from the Helius adapter."""
+    response = requests.get(f"{HELIUS_URL}/token/{mint}", timeout=10)
+    response.raise_for_status()
+    return response.json()
+```
+
+---
+
+## Security Rules
+
+**NEVER:**
+- Commit `.env`, API keys, or secrets to source control
+- Use `eval()` or `exec()` on untrusted input
+- Use `os.system()` or `subprocess` without explicit justification
+- Default missing adapter data to a "safe" value — always fail closed
+- Allow any layer above `core/` to override or reinterpret a `FAIL_CLOSED` verdict
+
+**ALWAYS:**
+- Load credentials from `.env` (see `.env.example` for required keys)
+- Check `.agents/automation-author.md` before implementing multi-step automations
+- Log all external API calls (Helius, LLM services)
+- Handle rate limits gracefully (back-off, do not retry until pass)
+
+---
+
+## Testing
+
+Tests live alongside their layer:
+- `src/tk22/core/__tests__/` — golden/invariant tests for the verdict engine
+- `src/tk22/apis/__tests__/` — verbatim contract tests for the API layer
+
+**Key test invariant:** The fail-closed golden test in `core/__tests__/failClosed.golden.test.ts` must always pass. If it fails, core is broken.
+
+When adding features to `core/`, add a corresponding golden test that proves FAIL_CLOSED behavior for missing/unknown inputs.
+
+---
 
 ## Key Files
-- `.vscode/tasks.json` - All approved automation
-- `.agents/authority.md` - Agent permissions
-- `REPO_CONTRACT.md` - Development rules
-- `.env.example` - Required environment variables
 
-## Common Patterns
-- Always validate Supabase connections before operations
-- Use environment-specific configs (dev/staging/prod)
-- Log all external API calls
-- Handle rate limits gracefully
-- Write tests for business logic
+| File | Purpose |
+|---|---|
+| `ARCHITECTURE.md` | Layer model, invariants, design rules |
+| `REPO_CONTRACT.md` | Folder naming rules, structural constraints |
+| `.env.example` | Required environment variables |
+| `src/tk22/core/policies.ts` | Numeric policy thresholds |
+| `src/tk22/core/types.ts` | `ChainFacts`, `VerdictResult`, `Verdict` |
+| `.eslintrc.js` | Import restrictions for `core/` isolation |
 
-## Questions to Ask
-- "Should this be a VS Code task?"
-- "Do I need to check agent authority?"
-- "Are there security implications?"
-- "Is this covered in REPO_CONTRACT.md?"
+---
+
+## Branch Strategy
+
+- `main` — stable and production-safe; only reviewed merges
+- `dev` — agents, experiments, controlled work in progress
