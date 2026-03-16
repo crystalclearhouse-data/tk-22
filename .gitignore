@@ -44,3 +44,7 @@ Thumbs.db
 # Lint/formatting reports
 .eslintcache
 .prettiercache
+
+# Real scan output files (use example_scan.json as template; real outputs go to workflow artifacts)
+control/proofs/*.json
+!control/proofs/example_scan.json

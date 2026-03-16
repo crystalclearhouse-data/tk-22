@@ -1,0 +1,8 @@
+{
+  "note": "This is an example of the scan output format.",
+  "fields": {
+    "id": "example",
+    "timestamp": "YYYY-MM-DDTHH:MM:SSZ",
+    "data": {}
+  }
+}
